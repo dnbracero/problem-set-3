@@ -124,6 +124,6 @@ def calculate_sklearn_metrics(model_pred_df, genre_list):
     pred_matrix = pd.DataFrame(pred_rows)
     true_matrix = pd.DataFrame(true_rows)
 
-    macro_prec, macro_rec, macro_f1, _ = precision_recall_fscore_support(true_matrix, pred_matrix, average="macro")
-    micro_prec, micro_rec, micro_f1, _ = precision_recall_fscore_support(true_matrix, pred_matrix, average="micro")
+    macro_prec, macro_rec, macro_f1, _ = precision_recall_fscore_support(true_matrix, pred_matrix, average="macro", zero_division=0)
+    micro_prec, micro_rec, micro_f1, _ = precision_recall_fscore_support(true_matrix, pred_matrix, average="micro", zero_division=0)
     return macro_prec, macro_rec, macro_f1, micro_prec, micro_rec, micro_f1
