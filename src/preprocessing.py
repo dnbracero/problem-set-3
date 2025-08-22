@@ -7,6 +7,11 @@ PART 1: PRE-PROCESSING
 '''
 
 import pandas as pd
+from pathlib import Path
+
+DATA_DIR = Path('data')
+PREDICTIONS_FILE = DATA_DIR / "prediction_model_03.csv"
+GENRES_FILE = DATA_DIR / "genres.csv"
 
 def load_data():
     '''
@@ -17,6 +22,9 @@ def load_data():
         genres_df (pd.DataFrame): DataFrame containing genre information
     '''
     # Your code here
+    model_pred_df = pd.read_csv(PREDICTIONS_FILE)
+    genres_df = pd.read_csv(GENRES_FILE)
+    return model_pred_df, genres_df
 
 
 def process_data(model_pred_df, genres_df):
