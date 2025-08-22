@@ -38,11 +38,16 @@ def calculate_metrics(model_pred_df, genre_list, genre_true_counts, genre_tp_cou
 
     '''
 
-    for idx,row in model_pred_df.iterrows():
+    for _,row in model_pred_df.iterrows():
         # change eval for literal_eval
         # safely turns a string into an object
         # will parse literals; in this case (tuples, lists)
-        this_genres = literal_eval(row["actual genres"])
+        try:
+            this_genres = literal_eval(str(row["actual genres"]))
+            if not isinstance(this_genres, (list, set, tuple)):
+                this_genres = []
+        except (ValueError, SyntaxError):
+            this_genres = []
     
         for true_g in this_genres:
             genre_true_counts[true_g] = genre_true_counts.get(true_g, 0) + 1
@@ -113,9 +118,14 @@ def calculate_sklearn_metrics(model_pred_df, genre_list):
     pred_rows = []
     true_rows = []
 
-    for idx,row in model_pred_df.iterrows():
-        this_genres = literal_eval(row["actual genres"])
-        pred_g = {row["predicted"]}
+    for _,row in model_pred_df.iterrows():
+        try:
+            this_genres = literal_eval(str(row["actual genres"]))
+            if not isinstance(this_genres, (list, set, tuple)):
+                this_genres = []
+        except (ValueError, SyntaxError):
+            this_genres = []
+        pred_g = {str(row["predicted"])}
 
         true_rows.append({
             g:1 if g in this_genres else 0 for g in genre_list

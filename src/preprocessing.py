@@ -39,3 +39,17 @@ def process_data(model_pred_df, genres_df):
     '''
 
     # Your code here
+    # expect a single 'genre' column in genres_df
+    if "genre" not in genres_df.columns:
+        raise KeyError("Expected a 'genre' column in genres_df.")
+
+    # sorted unique list of genres for consistent downstream ordering
+    genre_list = sorted(genres_df["genre"].dropna().astype(str).unique().tolist())
+
+    # initialize zeroed counters for each genre
+    # calculate_metrics() fills these
+    genre_true_counts = {g: 0 for g in genre_list}
+    genre_tp_counts = {g: 0 for g in genre_list}
+    genre_fp_counts = {g: 0 for g in genre_list}
+
+    return genre_list, genre_true_counts, genre_tp_counts, genre_fp_counts
