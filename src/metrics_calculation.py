@@ -8,6 +8,7 @@ PART 2: METRICS CALCULATION
 
 from sklearn.metrics import precision_recall_fscore_support
 import pandas as pd
+from ast import literal_eval
 
 def calculate_metrics(model_pred_df, genre_list, genre_true_counts, genre_tp_counts, genre_fp_counts):
     '''
@@ -38,7 +39,10 @@ def calculate_metrics(model_pred_df, genre_list, genre_true_counts, genre_tp_cou
     '''
 
     for idx,row in model_pred_df.iterrows():
-        this_genres = eval(row["actual genres"])
+        # change eval for literal_eval
+        # safely turns a string into an object
+        # will parse literals; in this case (tuples, lists)
+        this_genres = literal_eval(row["actual genres"])
     
         for true_g in this_genres:
             genre_true_counts[true_g] = genre_true_counts.get(true_g, 0) + 1
@@ -110,7 +114,7 @@ def calculate_sklearn_metrics(model_pred_df, genre_list):
     true_rows = []
 
     for idx,row in model_pred_df.iterrows():
-        this_genres = eval(row["actual genres"])
+        this_genres = literal_eval(row["actual genres"])
         pred_g = {row["predicted"]}
 
         true_rows.append({
