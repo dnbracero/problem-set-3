@@ -8,6 +8,7 @@ PART 2: METRICS CALCULATION
 
 from sklearn.metrics import precision_recall_fscore_support
 import pandas as pd
+from ast import literal_eval
 
 def calculate_metrics(model_pred_df, genre_list, genre_true_counts, genre_tp_counts, genre_fp_counts):
     '''
@@ -37,8 +38,16 @@ def calculate_metrics(model_pred_df, genre_list, genre_true_counts, genre_tp_cou
 
     '''
 
-    for idx,row in model_pred_df.iterrows():
-        this_genres = eval(row["actual genres"])
+    for _,row in model_pred_df.iterrows():
+        # change eval for literal_eval
+        # safely turns a string into an object
+        # will parse literals; in this case (tuples, lists)
+        try:
+            this_genres = literal_eval(str(row["actual genres"]))
+            if not isinstance(this_genres, (list, set, tuple)):
+                this_genres = []
+        except (ValueError, SyntaxError):
+            this_genres = []
     
         for true_g in this_genres:
             genre_true_counts[true_g] = genre_true_counts.get(true_g, 0) + 1
@@ -109,9 +118,14 @@ def calculate_sklearn_metrics(model_pred_df, genre_list):
     pred_rows = []
     true_rows = []
 
-    for idx,row in model_pred_df.iterrows():
-        this_genres = eval(row["actual genres"])
-        pred_g = {row["predicted"]}
+    for _,row in model_pred_df.iterrows():
+        try:
+            this_genres = literal_eval(str(row["actual genres"]))
+            if not isinstance(this_genres, (list, set, tuple)):
+                this_genres = []
+        except (ValueError, SyntaxError):
+            this_genres = []
+        pred_g = {str(row["predicted"])}
 
         true_rows.append({
             g:1 if g in this_genres else 0 for g in genre_list
@@ -124,6 +138,6 @@ def calculate_sklearn_metrics(model_pred_df, genre_list):
     pred_matrix = pd.DataFrame(pred_rows)
     true_matrix = pd.DataFrame(true_rows)
 
-    macro_prec, macro_rec, macro_f1, _ = precision_recall_fscore_support(true_matrix, pred_matrix, average="macro")
-    micro_prec, micro_rec, micro_f1, _ = precision_recall_fscore_support(true_matrix, pred_matrix, average="micro")
+    macro_prec, macro_rec, macro_f1, _ = precision_recall_fscore_support(true_matrix, pred_matrix, average="macro", zero_division=0)
+    micro_prec, micro_rec, micro_f1, _ = precision_recall_fscore_support(true_matrix, pred_matrix, average="micro", zero_division=0)
     return macro_prec, macro_rec, macro_f1, micro_prec, micro_rec, micro_f1
