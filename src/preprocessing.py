@@ -7,6 +7,11 @@ PART 1: PRE-PROCESSING
 '''
 
 import pandas as pd
+from pathlib import Path
+
+DATA_DIR = Path('data')
+PREDICTIONS_FILE = DATA_DIR / "prediction_model_03.csv"
+GENRES_FILE = DATA_DIR / "genres.csv"
 
 def load_data():
     '''
@@ -17,6 +22,9 @@ def load_data():
         genres_df (pd.DataFrame): DataFrame containing genre information
     '''
     # Your code here
+    model_pred_df = pd.read_csv(PREDICTIONS_FILE)
+    genres_df = pd.read_csv(GENRES_FILE)
+    return model_pred_df, genres_df
 
 
 def process_data(model_pred_df, genres_df):
@@ -31,3 +39,17 @@ def process_data(model_pred_df, genres_df):
     '''
 
     # Your code here
+    # expect a single 'genre' column in genres_df
+    if "genre" not in genres_df.columns:
+        raise KeyError("Expected a 'genre' column in genres_df.")
+
+    # sorted unique list of genres for consistent downstream ordering
+    genre_list = sorted(genres_df["genre"].dropna().astype(str).unique().tolist())
+
+    # initialize zeroed counters for each genre
+    # calculate_metrics() fills these
+    genre_true_counts = {g: 0 for g in genre_list}
+    genre_tp_counts = {g: 0 for g in genre_list}
+    genre_fp_counts = {g: 0 for g in genre_list}
+
+    return genre_list, genre_true_counts, genre_tp_counts, genre_fp_counts
